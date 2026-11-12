@@ -1,0 +1,315 @@
+/*
+Yale identity (yaleidentity.yale.edu): Yale Blue as the base color, used purposefully;
+the Yale typeface (YaleNew) for titles and headings, Mallory for text, each followed by
+the fallbacks Yale names for its presentation template (Georgia and Calibri). The web
+fonts in fonts/ are the ones egc.yale.edu serves; they are licensed for Yale websites.
+Accessibility follows Yale's WCAG 2.1 AA checklist: text contrast of at least 4.5:1,
+3:1 for controls and focus indicators, visible keyboard focus, and dismissible tooltips.
+Chart colors are set in js/deck.js, not here.
+*/
+
+@font-face { font-family: "Mallory"; font-weight: 300; font-style: normal; font-display: swap; src: url(../fonts/Mallory-300.woff2) format("woff2"); }
+@font-face { font-family: "Mallory"; font-weight: 400; font-style: normal; font-display: swap; src: url(../fonts/Mallory-400.woff2) format("woff2"); }
+@font-face { font-family: "Mallory"; font-weight: 400; font-style: italic; font-display: swap; src: url(../fonts/Mallory-400i.woff2) format("woff2"); }
+@font-face { font-family: "Mallory"; font-weight: 700; font-style: normal; font-display: swap; src: url(../fonts/Mallory-700.woff2) format("woff2"); }
+@font-face { font-family: "Mallory"; font-weight: 700; font-style: italic; font-display: swap; src: url(../fonts/Mallory-700i.woff2) format("woff2"); }
+@font-face { font-family: "YaleNew"; font-weight: 400; font-style: normal; font-display: swap; src: url(../fonts/YaleNew-400.woff2) format("woff2"); }
+@font-face { font-family: "YaleNew"; font-weight: 400; font-style: italic; font-display: swap; src: url(../fonts/YaleNew-400i.woff2) format("woff2"); }
+@font-face { font-family: "YaleNew"; font-weight: 700; font-style: normal; font-display: swap; src: url(../fonts/YaleNew-700.woff2) format("woff2"); }
+@font-face { font-family: "YaleNew"; font-weight: 700; font-style: italic; font-display: swap; src: url(../fonts/YaleNew-700i.woff2) format("woff2"); }
+
+:root {
+  --yale-blue: #00356b;
+  --yale-gray: #968c83;   /* PMS Warm Gray 7: rules and borders only, 3.4:1 on white */
+  --blue-tint: #e8eef5;   /* Yale Blue at about 9% on white */
+  --ink: #222;
+  --muted: #4d4d4d;       /* 8.6:1 on white */
+  --bg: #fff;
+  --font-serif: "YaleNew", "Yale", Georgia, "Times New Roman", serif;
+  --font-sans: "Mallory", Calibri, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.reveal { font-size: 26px; color: var(--ink); font-family: var(--font-sans); }
+.reveal .slides { text-align: left; }
+.reveal .slides > section { height: 100%; box-sizing: border-box; padding: 20px 44px; }
+.reveal h1, .reveal h2, .reveal h3 { margin: 0 0 0.7em; font-family: var(--font-serif); font-weight: 400; line-height: 1.15; color: var(--yale-blue); }
+.reveal h1 { font-size: 2.1em; }
+.reveal h2 { font-size: 1.45em; }
+.reveal h3 { font-family: var(--font-sans); font-weight: 700; font-size: 0.75em; }
+.reveal p { margin: 0 0 0.7em; line-height: 1.4; }
+.reveal ul, .reveal ol { margin: 0 0 0.7em; padding-left: 1.2em; }
+.reveal li { margin-bottom: 0.65em; line-height: 1.35; }
+.reveal li ul { margin-top: 0.45em; font-size: 0.95em; }
+/* Slides of text alone (no chart, image or chapter list) use larger type to fill the slide */
+.reveal .slides > section:not(.dark):not(:has(figure, .chapters)) { font-size: 30px; }
+.reveal .slides > section:not(.dark):not(:has(figure, .chapters)) li { margin-bottom: 0.9em; }
+.reveal ul.spaced li { margin-bottom: 0.9em; }
+.reveal li::marker { color: var(--yale-blue); }
+.reveal ol > li::marker { font-weight: 700; }
+.reveal strong { font-weight: 700; }
+
+/* Content slides: the title on a Yale Blue band across the top, matched by the
+   thinner bar of slide dots across the bottom */
+.reveal .slides > section:not(.dark) > h2 {
+  font-size: 37.7px;   /* fixed, so the band is the same height on every slide */
+  margin: -20px -44px 0.8em;
+  padding: 22px 44px 20px;
+  background: var(--yale-blue);
+  color: #fff;
+}
+
+/* Slides on Yale Blue */
+.reveal .dark, .reveal .dark h1, .reveal .dark h2 { color: #fff; }
+.section-slide h2 { margin-top: 270px; font-size: 1.9em; }
+
+.title-slide { padding-top: 150px !important; }
+.title-slide .subtitle { font-size: 1.1em; }
+.title-slide hr { border: 0; border-top: 2px solid #fff; margin: 1em 0; width: 60%; }
+.title-slide .authors { list-style: none; padding: 0; margin: 0 0 1em; display: flex; gap: 48px; }
+.title-slide .authors li { margin: 0; }
+.title-slide .affiliation { display: block; font-size: 0.8em; }
+.title-slide .credit { position: absolute; left: 44px; bottom: 60px; font-size: 0.7em; }
+
+/* Reveal's navigation arrows */
+.reveal .controls { color: var(--yale-blue); bottom: 36px; }
+.reveal.has-dark-background .controls { color: #fff; }
+
+/* On the title slide the next arrow breathes: a slow swell and a longer release */
+@keyframes breathe {
+  0%, 100% { scale: 1; opacity: 0.6; }
+  40% { scale: 1.22; opacity: 1; }
+}
+.on-first-slide .reveal .controls .navigate-right { animation: breathe 5s ease-in-out infinite; }
+
+/* Slide dots (js/deck.js), in a Yale Blue bar across the bottom */
+.reveal .dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--yale-blue);
+}
+.dots .dot {
+  position: relative;
+  width: 18px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.dots .dot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease-out, height 0.3s ease-out;
+}
+.dots .dot.section::before { width: 9px; height: 9px; }
+.dots .dot.current::before { width: 14px; height: 14px; }
+.reveal .dots .dot:focus-visible { outline: 2px solid #fff; outline-offset: -1px; border-radius: 4px; }
+.dot-tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--shift, 0px)));
+  width: max-content;
+  max-width: min(320px, 100vw - 32px);
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+  font-size: 15px;
+  line-height: 1.3;
+  text-align: left;
+  pointer-events: none;
+}
+.dot:is(:hover, :focus-visible) .dot-tip { display: block; }
+body.tips-dismissed .dots .dot-tip { display: none; }
+
+/* Keyboard focus: a 3px outline in Yale Blue, white on Yale Blue slides */
+.reveal :focus-visible,
+.reveal .controls button:focus-visible {
+  outline: 3px solid var(--yale-blue);
+  outline-offset: 2px;
+}
+.reveal .dark :focus-visible,
+.reveal.has-dark-background .controls button:focus-visible { outline-color: #fff; }
+
+/* Figure slides: a 5:4 chart on the left, its points on the right */
+.columns { display: flex; gap: 48px; align-items: flex-start; }
+.columns figure { margin: 0; flex: 0 0 560px; }
+.columns .points { flex: 1; margin-top: 64px; }
+figure.image img { display: block; width: 560px; margin-top: 40px; }
+
+figcaption { color: var(--muted); font-size: 0.65em; margin-top: 6px; line-height: 1.35; }
+
+.toolbar { display: flex; gap: 12px; align-items: center; min-height: 32px; margin-bottom: 4px; }
+.toolbar .table-toggle { margin-left: auto; }
+.toggle { display: flex; gap: 6px; }
+.toolbar button {
+  font: inherit;
+  font-size: 0.58em;
+  padding: 4px 12px;
+  border: 1px solid var(--yale-blue);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--yale-blue);
+  cursor: pointer;
+}
+.toolbar button:hover { background: var(--blue-tint); }
+.toolbar button[aria-pressed="true"] { background: var(--yale-blue); color: #fff; }
+
+/* The chart's data, shown in place of the chart */
+.data-table { height: 448px; overflow: auto; border: 1px solid var(--yale-gray); font-size: 0.55em; }
+.data-table table { border-collapse: collapse; width: 100%; }
+.data-table th, .data-table td { padding: 4px 8px; text-align: right; border-bottom: 1px solid #ddd; font-variant-numeric: tabular-nums; }
+.data-table th[scope="row"], .data-table thead th:first-child { text-align: left; }
+.data-table thead th { position: sticky; top: 0; background: var(--blue-tint); color: var(--yale-blue); vertical-align: bottom; }
+.data-table th[scope="row"] { font-weight: 400; }
+
+/* Plot's color legend, above the chart */
+.plot figure { margin: 0; }
+.plot [class*="-swatches"] { font-size: 18px; }
+/* Escape hides chart tooltips until the pointer moves again */
+.tips-dismissed .plot g[aria-label="tip"] { display: none; }
+
+.questions li { margin-bottom: 0.9em; }
+
+/* Icon table (Font Awesome Free 6.5.2 solid icons, CC BY 4.0, inlined) */
+table.conditions { border-collapse: collapse; margin-top: 10px; }
+table.conditions td, table.conditions th { padding: 15px 24px 15px 0; text-align: left; vertical-align: middle; border: 0; }
+table.conditions th { width: 250px; font-weight: 700; }
+.icon { display: block; width: 44px; height: 44px; fill: var(--yale-blue); }
+
+table.trade { border-collapse: collapse; font-size: 0.9em; margin-bottom: 1.2em; }
+table.trade th, table.trade td { padding: 16px 18px 16px 0; text-align: left; vertical-align: top; border: 0; line-height: 1.3; }
+table.trade thead th { border-bottom: 2px solid var(--yale-blue); color: var(--yale-blue); }
+table.trade tbody th { width: 200px; }
+table.trade tbody tr + tr > * { border-top: 1px solid #ddd; }
+
+.two-up { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; font-size: 0.9em; }
+
+/* Chapter lists */
+.chapters { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; font-size: 0.92em; }
+.chapters h3 {
+  background: var(--blue-tint);
+  padding: 6px 10px;
+  min-height: 2.6em;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.8em;
+}
+.chapters dt { margin-top: 1.1em; line-height: 1.3; }
+.chapters dd { margin: 0.2em 0 0 1.2em; font-style: italic; color: var(--yale-blue); font-size: 0.88em; line-height: 1.3; }
+.chapters a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.chapters a:hover { text-decoration-thickness: 2px; }
+/* External-link icon after each chapter link: Font Awesome Free 6.5.2
+   arrow-up-right-from-square (CC BY 4.0), drawn in the text color */
+.chapters a::after {
+  content: "";
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: 0.35em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Author headshots, placed as on the PDF slide (16 x 9 cm, circles of radius 0.769 cm).
+   Each is a button: hover, focus or selection enlarges it and shows its tooltip. */
+.headshots .bubbles { position: absolute; inset: 0; }
+.author {
+  position: absolute;
+  width: 9.61%;
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  /* js/deck.js animates the transform; this transition serves reduced motion and no-JS */
+  transition: transform 0.15s ease-out;
+}
+/* Each image is already round, with its white ring and transparent corners
+   (img/make_bubbles.py), so moving bubbles are only scaled bitmaps */
+.author img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.author:hover, .author:focus-visible, .author.pinned { z-index: 10; }
+.bubbles:not(.physics) .author:is(:hover, :focus-visible, .pinned) { transform: scale(2.25); }
+.author:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }  /* 4.5px when enlarged */
+.author .tip {
+  display: none;
+  position: absolute;
+  width: max-content;
+  max-width: 200px;
+  padding: 5.3px 8px;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 2.7px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+  font-size: 8px;            /* scaled 2.25x with its button: 18px on the slide */
+  line-height: 1.35;
+  text-align: left;
+  pointer-events: auto;
+}
+.author .tip strong { display: block; color: var(--yale-blue); font-size: 1.1em; }
+.author .tip .chapter { display: block; margin-top: 4px; font-style: italic; }
+.author:hover .tip, .author:focus-visible .tip, .author.pinned .tip { display: block; }
+.author.dismissed .tip { display: none; }
+.author.above .tip { bottom: calc(100% + 4px); }
+.author.below .tip { top: calc(100% + 4px); }
+.author.center .tip { left: 50%; transform: translateX(-50%); }
+.author.start .tip { left: 0; }
+.author.end .tip { right: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .author, .dots .dot::before { transition: none; }
+  .on-first-slide .reveal .controls .navigate-right { animation: none; }
+}
+
+@media print {
+  .toolbar { display: none; }
+}
