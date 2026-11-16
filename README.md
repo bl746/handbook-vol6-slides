@@ -26,7 +26,7 @@ After changing `css/deck.css` or `js/deck.js`, change the `?v=` date on their li
 
 Open `index.html` or `embed-test.html` in a browser. The chart data comes in through `<script>` tags,
 which browsers allow for pages opened from disk.
-Press `S` to open the speaker notes and `?` to list the keyboard shortcuts.
+Press `?` to list the keyboard shortcuts.
 Adding `?print-pdf` to the URL gives a printable view.
 
 ## Data
