@@ -34,15 +34,12 @@ Deck.register("childmort", {
         Plot.lineY(rows, { x: "time", y: "value", stroke: "series", strokeWidth: 2.5 }),
         Plot.dot(last, { x: "time", y: "value", fill: "series", r: 4 }),
         Plot.text(series, { x: 2025, y: "labelY", text: "name", fill: "name", textAnchor: "start", dx: 8 }),
-        Plot.tip(
-          rows,
-          Plot.pointer({
-            x: "time",
-            y: "value",
-            stroke: "series",
-            title: (d) => `${d.series}, ${d.time}\n${fmt.one(d.value)} deaths per 1,000 births`,
-          })
-        ),
+        ...Deck.lineTip(rows, {
+          x: "time",
+          y: "value",
+          fill: "series",
+          title: (d) => `${d.series}, ${d.time}\n${fmt.one(d.value)} deaths per 1,000 births`,
+        }),
       ],
     });
   },

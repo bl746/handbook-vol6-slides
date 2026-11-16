@@ -28,8 +28,6 @@ Deck.register("coverage", {
   render(rows) {
     const { color, fmt } = Deck;
     const total = d3.sum(rows, (d) => d.bn);
-    const title = (d) =>
-      `${d.label}\n${fmt.one(d.bn)} billion people, ${Math.round((100 * d.bn) / total)}% of ${fmt.one(total)} billion`;
     return Deck.plot({
       marginLeft: 20,
       x: { domain: [0, 1], axis: null },
@@ -38,7 +36,6 @@ Deck.register("coverage", {
       marks: [
         Plot.rect(rows, { x1: 0, x2: 1, y1: "bottom", y2: "top", fill: "label", stroke: "white", strokeWidth: 2 }),
         Plot.text(rows, { x: 0.5, y: "mid", text: (d) => `${d.label}\n${fmt.one(d.bn)} billion`, fill: "white", fontSize: 20 }),
-        Plot.tip(rows, Plot.pointer({ x: 0.5, y: "mid", title, maxRadius: 200 })),
       ],
     });
   },

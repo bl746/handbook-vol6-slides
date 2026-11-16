@@ -39,7 +39,7 @@ Deck.register("articles", {
           )
         ),
         Plot.lineY(rows, { x: "year", y: "n", stroke: color.sea, strokeWidth: 2.5 }),
-        Plot.tip(rows, Plot.pointerX({ x: "year", y: "n", title: (d) => `${d.year}\n${d.n} articles` })),
+        ...Deck.lineTip(rows, { x: "year", y: "n", pointer: Plot.pointerX, title: (d) => `${d.year}\n${d.n} articles` }),
       ],
     });
   },

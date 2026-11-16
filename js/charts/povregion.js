@@ -23,17 +23,14 @@ Deck.register("povregion", {
       { name: "East Asia & Pacific", label: "East Asia", color: color.sea },
     ];
     const value = (year, region) => rows.find((d) => d.year === year && d.region === region).poorpop;
-    const years = d3.groups(rows, (d) => d.year).map(([year, group]) => ({
-      year,
-      total: d3.sum(group, (d) => d.poorpop),
-      title: [
-        String(year),
-        ...regions
-          .slice()
-          .reverse()
-          .map((r) => `${r.name}: ${fmt.int(group.find((d) => d.region === r.name).poorpop)} million`),
-      ].join("\n"),
-    }));
+    const years = d3.groups(rows, (d) => d.year).map(([year, group]) => {
+      const poor = (name) => group.find((d) => d.region === name).poorpop;
+      return {
+        year,
+        value: Object.fromEntries(regions.map((r) => [r.name, poor(r.name)])),
+        edge: Object.fromEntries(regions.map((r, i) => [r.name, d3.sum(regions.slice(0, i + 1), (s) => poor(s.name))])),
+      };
+    });
     const stackedBelow = (year, region) =>
       d3.sum(regions.slice(0, regions.findIndex((r) => r.name === region)), (r) => value(year, r.name));
     const labels = [
@@ -57,8 +54,7 @@ Deck.register("povregion", {
           strokeWidth: 0.5,
         }),
         Plot.text(labels, { x: "x", y: "y", text: "text", fill: "white", stroke: "#333", strokeWidth: 2.5 }),
-        Plot.ruleX(years, Plot.pointerX({ x: "year", stroke: "#333" })),
-        Plot.tip(years, Plot.pointerX({ x: "year", y: "total", title: "title" })),
+        ...Deck.stackTip(years, { bands: regions, format: (v) => `${fmt.int(v)} million` }),
       ],
     });
   },

@@ -48,10 +48,12 @@ Deck.register("elephant", {
           { x: "x", y: "y", text: "text", ...group }
         ),
         Plot.lineY(rows, { x: "x", y: "growth", stroke: color.sea, strokeWidth: 2.5 }),
-        Plot.tip(
-          rows,
-          Plot.pointerX({ x: "x", y: "growth", title: (d) => `Percentile ${d.percentile}\n+${d.growth}% real income growth` })
-        ),
+        ...Deck.lineTip(rows, {
+          x: "x",
+          y: "growth",
+          pointer: Plot.pointerX,
+          title: (d) => `Percentile ${d.percentile}\n+${d.growth}% real income growth`,
+        }),
       ],
     });
   },

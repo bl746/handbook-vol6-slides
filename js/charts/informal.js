@@ -35,15 +35,12 @@ Deck.register("informal", {
         Plot.lineY(rows, { x: "year", y: "value", stroke: "series", strokeWidth: 2.5 }),
         Plot.dot(rows.filter((d) => d.year === lastYear), { x: "year", y: "value", fill: "series", r: 4 }),
         Plot.text(series, { x: lastYear, y: "labelY", text: "name", fill: "name", textAnchor: "start", dx: 8 }),
-        Plot.tip(
-          rows,
-          Plot.pointer({
-            x: "year",
-            y: "value",
-            stroke: "series",
-            title: (d) => `${d.series}, ${d.year}\n${fmt.one(d.value)}% of workers informal`,
-          })
-        ),
+        ...Deck.lineTip(rows, {
+          x: "year",
+          y: "value",
+          fill: "series",
+          title: (d) => `${d.series}, ${d.year}\n${fmt.one(d.value)}% of workers informal`,
+        }),
       ],
     });
   },

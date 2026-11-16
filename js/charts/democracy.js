@@ -45,16 +45,14 @@ Deck.register("democracy", {
     const { color } = Deck;
     const india = view === "india";
     const { bands, shares } = democracyShares(rows, view);
-    const years = d3.groups(shares, (d) => d.year).map(([year, group]) => ({
-      year,
-      title: [
-        String(year),
-        ...bands
-          .slice()
-          .reverse()
-          .map((b) => `${b.label}: ${Math.round(group.find((d) => d.band === b.name).share)}%`),
-      ].join("\n"),
-    }));
+    const years = d3.groups(shares, (d) => d.year).map(([year, group]) => {
+      const share = (name) => group.find((d) => d.band === name).share;
+      return {
+        year,
+        value: Object.fromEntries(bands.map((b) => [b.name, share(b.name)])),
+        edge: Object.fromEntries(bands.map((b, i) => [b.name, d3.sum(bands.slice(0, i + 1), (s) => share(s.name))])),
+      };
+    });
     const label = { fill: "white", fontWeight: "bold", fontSize: 17 };
     const labels = india
       ? [
@@ -98,8 +96,7 @@ Deck.register("democracy", {
           x: "x", y: "y", text: "text", textAnchor: "start", ...label, fontWeight: "normal", fontSize: 15,
         }),
         Plot.arrow(arrows, { x1: "x1", y1: "y1", x2: "x2", y2: "y2", stroke: "white", headLength: 6, strokeWidth: 1.5 }),
-        Plot.ruleX(years, Plot.pointerX({ x: "year", stroke: "#333" })),
-        Plot.tip(years, Plot.pointerX({ x: "year", y: 50, title: "title" })),
+        ...Deck.stackTip(years, { bands, format: (v) => `${Math.round(v)}%` }),
       ],
     });
   },

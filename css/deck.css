@@ -206,7 +206,7 @@ figcaption { color: var(--muted); font-size: 0.65em; margin-top: 6px; line-heigh
 .plot figure { margin: 0; }
 .plot [class*="-swatches"] { font-size: 18px; }
 /* Escape hides chart tooltips until the pointer moves again */
-.tips-dismissed .plot g[aria-label="tip"] { display: none; }
+.tips-dismissed .plot :is(g[aria-label="tip"], .tip-marker) { display: none; }
 
 .questions li { margin-bottom: 0.9em; }
 

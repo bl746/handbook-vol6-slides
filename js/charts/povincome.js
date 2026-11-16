@@ -23,9 +23,14 @@ Deck.register("povincome", {
       const low = -(g.find((d) => d.income_group === "Low income")?.poorpop ?? 0);
       return {
         year,
-        title: `${year}\nMiddle-income countries: ${fmt.int(mid)} million\nLow-income countries: ${fmt.int(low)} million`,
+        value: { "Middle income": mid, "Low income": low },
+        edge: { "Middle income": mid, "Low income": -low },
       };
     });
+    const bands = [
+      { name: "Middle income", label: "Middle-income", color: color.sea },
+      { name: "Low income", label: "Low-income", color: color.turquoise },
+    ];
     const notes = [
       { from: 2001.1, to: 1999.5, y: -1590, textY: -1650, text: "China becomes\nmiddle-income" },
       { from: 2009.1, to: 2007.5, y: -590, textY: -650, text: "India becomes\nmiddle-income" },
@@ -39,8 +44,7 @@ Deck.register("povincome", {
         label: "Millions in extreme poverty",
       },
       marks: [
-        Plot.areaY(group("Middle income"), { x: "year", y: "poorpop", fill: color.sea }),
-        Plot.areaY(group("Low income"), { x: "year", y: "poorpop", fill: color.turquoise }),
+        ...bands.map((b) => Plot.areaY(group(b.name), { x: "year", y: "poorpop", fill: b.color })),
         Plot.ruleY([0], { stroke: "white" }),
         Plot.text([{ x: 2024, y: 150, text: "Middle-income" }], {
           x: "x", y: "y", text: "text", fill: "white", fontWeight: "bold", textAnchor: "end",
@@ -50,8 +54,7 @@ Deck.register("povincome", {
         }),
         Plot.arrow(notes, { x1: "from", x2: "to", y1: "y", y2: "y", stroke: "#555", headLength: 6 }),
         Plot.text(notes, { x: (d) => d.from + 0.3, y: "textY", text: "text", fill: "#555", textAnchor: "start", fontSize: 16 }),
-        Plot.ruleX(years, Plot.pointerX({ x: "year", stroke: "#333" })),
-        Plot.tip(years, Plot.pointerX({ x: "year", y: 0, title: "title" })),
+        ...Deck.stackTip(years, { bands, format: (v) => `${fmt.int(v)} million` }),
       ],
     });
   },

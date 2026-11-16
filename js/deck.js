@@ -297,7 +297,7 @@ const Deck = (() => {
           (a) => !a.classList.contains("dismissed") && (a.classList.contains("pinned") || a.matches(":hover, :focus-visible"))
         );
         const chartTip = !document.body.classList.contains("tips-dismissed") &&
-          document.querySelector("[data-chart] g[aria-label=tip] text, .dots .dot:is(:hover, :focus-visible)");
+          document.querySelector("[data-chart] :is(g[aria-label=tip], .hover-labels) text, .dots .dot:is(:hover, :focus-visible)");
         if (!authors.length && !chartTip) return;
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -422,6 +422,148 @@ const Deck = (() => {
     };
   }
 
+  // Hover markers: a dot with a white ring. A tip's arrow stops markerGap from its point.
+  const marker = { r: 6, stroke: "white", strokeWidth: 2, className: "tip-marker" };
+  const markerGap = marker.r + marker.strokeWidth / 2;
+
+  // Hover tooltip for a line chart, with a marker on the line at the point it describes.
+  // The marker and the tip share one pointer, so they always pick the same point. The tip
+  // is moved so its arrow ends at the marker's edge, level with it or centred on it.
+  // fill is a color or a channel such as "series"; pointer is Plot.pointer or Plot.pointerX.
+  function lineTip(rows, { x, y, fill = color.sea, title, pointer = Plot.pointer }) {
+    return [
+      Plot.dot(rows, pointer({ x, y, fill, ...marker })),
+      Plot.tip(rows, pointer({ x, y, title, render: offsetTip(markerGap) })),
+    ];
+  }
+
+  // Hover labels for a stacked area chart: a rule at the hovered year with the year on the
+  // x axis, a marker on each band's outer edge, and beside each marker a label in the
+  // band's color giving its value. years has one row per year: the year,
+  // edge: {band name: outer edge of that band}, and value: {band name: value}. bands are
+  // {name, label, color}; format turns a value into text. Every mark points at the same
+  // target (px, py), so all of them pick the same year.
+  function stackTip(years, { bands, format }) {
+    const target = { px: "year", py: () => 0 };
+    return [
+      Plot.ruleX(years, Plot.pointerX({ x: "year", stroke: "#333", className: "tip-marker", ...target })),
+      ...bands.map((b) =>
+        Plot.dot(years, Plot.pointerX({ x: "year", y: (d) => d.edge[b.name], fill: b.color, ...marker, ...target }))
+      ),
+      Plot.dot(years, Plot.pointerX({ x: "year", ...target, render: stackLabels(years, bands, format) })),
+    ];
+  }
+
+  // Render function drawing stackTip's labels for the hovered year. Labels sit on the
+  // side of the rule with more room, level with their markers where they fit, and are
+  // spread apart vertically where markers are close, with a line back to each marker.
+  function stackLabels(years, bands, format) {
+    const height = 26;
+    const space = 3;
+    const pad = 7;
+    return (index, scales, values, dimensions) => {
+      const g = d3.create("svg:g").attr("class", "tip-marker hover-labels").attr("pointer-events", "none");
+      if (!index.length) return g.node();
+      const d = years[index[0]];
+      const { width, height: plotHeight, marginLeft, marginRight, marginTop, marginBottom } = dimensions;
+      const x = scales.x(d.year);
+      const dir = x > (marginLeft + width - marginRight) / 2 ? -1 : 1;
+      const items = bands
+        .map((b) => ({ b, dotY: scales.y(d.edge[b.name]), text: `${b.label}: ${format(d.value[b.name])}` }))
+        .sort((a, b) => a.dotY - b.dotY);
+      spread(items, height + space, marginTop + height / 2, plotHeight - marginBottom - height / 2);
+      const lx = x + dir * (markerGap + 12);
+      for (const it of items) {
+        const fill = it.b.color;
+        // A white halo under each line keeps it visible over its own band's color
+        for (const [cls, stroke, width] of [["halo", "white", 4], ["link", fill, 1.5]]) {
+          g.append("line").attr("class", cls)
+            .attr("x1", x + dir * markerGap).attr("y1", it.dotY)
+            .attr("x2", lx).attr("y2", it.y)
+            .attr("stroke", stroke).attr("stroke-width", width);
+        }
+        label(g, lx, it.y, it.text, fill, dir);
+      }
+      label(g, x, plotHeight - marginBottom + 6 + height / 2, String(d.year), "#333", 0);
+      sizeLabels(g.node());
+      return g.node();
+    };
+
+    // A label: white text on a box of the given fill, outlined in white to stand apart from
+    // an area of the same color. dir 1 puts the box to the right of x, -1 to the left, 0
+    // centred on it. The box is sized once the text can be measured.
+    function label(g, x, y, text, fill, dir) {
+      const anchor = dir > 0 ? "start" : dir < 0 ? "end" : "middle";
+      const box = g.append("g").attr("class", "hover-label").attr("transform", `translate(${x},${y})`).attr("visibility", "hidden");
+      box.append("rect").attr("fill", fill).attr("stroke", "white").attr("rx", 3).attr("y", -height / 2).attr("height", height);
+      box.append("text")
+        .attr("x", dir * pad).attr("dy", "0.35em").attr("text-anchor", anchor)
+        .attr("fill", "white").attr("font-size", 16).text(text);
+    }
+
+    // Text can only be measured once the labels are on the page: Plot inserts them after
+    // this render returns, so measuring waits a microtask, or a frame if still detached.
+    function sizeLabels(node, frames = 0) {
+      Promise.resolve().then(() => {
+        if (!node.isConnected) {
+          if (frames < 10) requestAnimationFrame(() => sizeLabels(node, frames + 1));
+          return;
+        }
+        for (const box of node.querySelectorAll(".hover-label")) {
+          const t = box.querySelector("text").getBBox();
+          const rect = box.querySelector("rect");
+          rect.setAttribute("x", t.x - pad);
+          rect.setAttribute("width", t.width + 2 * pad);
+          box.removeAttribute("visibility");
+        }
+      });
+    }
+  }
+
+  // Positions items (sorted by dotY) at y as close to dotY as they can be while keeping
+  // step apart and within lo..hi
+  function spread(items, step, lo, hi) {
+    items.forEach((it, i) => (it.y = Math.max(it.dotY, i ? items[i - 1].y + step : lo)));
+    for (let i = items.length - 1; i >= 0; i--) {
+      const max = i === items.length - 1 ? hi : items[i + 1].y - step;
+      if (items[i].y > max) items[i].y = max;
+    }
+  }
+
+  // Render transform for Plot.tip: places each tip's arrow gap pixels from its point, on
+  // the side the tip opens. Plot's tip path starts with the arrow's first edge; the next
+  // command is "v" for the "left" and "right" anchors, whose box sits beside the point,
+  // and "h" for the others, whose box sits above or below it.
+  // The point's position comes from the channel values, which Plot rounds to the pixel
+  // for the tip's own anchor. Plot draws the tip's box and arrow after the mark renders
+  // (in a microtask, or the next animation frame before the plot is on the page), and
+  // picks the side then, so the shift waits until the arrow exists.
+  function offsetTip(gap) {
+    return (index, scales, values, dimensions, context, next) => {
+      const g = next(index, scales, values, dimensions, context);
+      let frames = 0;
+      const shift = () => {
+        const tips = [...g.children];
+        if (tips.some((tip) => !tip.querySelector("path")?.getAttribute("d"))) {
+          if (++frames < 10) requestAnimationFrame(shift);
+          return;
+        }
+        tips.forEach((tip, j) => {
+          const arrow = tip.querySelector("path").getAttribute("d").match(/^M0,0l(-?[\d.]+),(-?[\d.]+)([hv])/);
+          const at = tip.getAttribute("transform")?.match(/translate\((-?[\d.]+),(-?[\d.]+)\)/);
+          if (!arrow || !at) return;
+          const [dx, dy, beside] = [+arrow[1], +arrow[2], arrow[3] === "v"];
+          const x = values.x?.[index[j]] ?? +at[1];
+          const y = values.y?.[index[j]] ?? +at[2];
+          const [ox, oy] = beside ? [Math.sign(dx) * gap, 0] : [0, Math.sign(dy) * gap];
+          tip.setAttribute("transform", `translate(${x + ox},${y + oy})`);
+        });
+      };
+      if (index.length) Promise.resolve().then(shift);
+      return g;
+    };
+  }
+
   const fmt = {
     int: d3.format(",.0f"),
     one: d3.format(",.1f"),
@@ -488,5 +630,5 @@ const Deck = (() => {
     };
   }
 
-  return { register, start, csv, color, plot, long, pivot, fmt, incomeScatter, incomeTable };
+  return { register, start, csv, color, plot, long, pivot, fmt, lineTip, stackTip, incomeScatter, incomeTable };
 })();

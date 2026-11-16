@@ -41,15 +41,12 @@ Deck.register("governance", {
             { x: "x", y: "y", text: (s) => s.name.replace(", ", ",\n"), fill: "name", textAnchor: anchor }
           )
         ),
-        Plot.tip(
-          rows,
-          Plot.pointer({
-            x: "year",
-            y: "value",
-            stroke: "series",
-            title: (d) => `${d.series}, ${d.year}\n${fmt.one(d.value)}`,
-          })
-        ),
+        ...Deck.lineTip(rows, {
+          x: "year",
+          y: "value",
+          fill: "series",
+          title: (d) => `${d.series}, ${d.year}\n${fmt.one(d.value)}`,
+        }),
       ],
     });
   },
